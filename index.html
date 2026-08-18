@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>단위 변환기</title>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; }
+    select, input { width: 100%; padding: 10px; margin: 8px 0; font-size: 16px; box-sizing: border-box; }
+    .result { font-size: 24px; font-weight: bold; color: #2563eb; margin-top: 16px; }
+    h1 { color: #1e293b; }
+    .category-btn {
+      padding: 8px 16px; margin: 4px; border: 1px solid #cbd5e1;
+      background: white; border-radius: 6px; cursor: pointer;
+    }
+    .category-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+  </style>
+</head>
+<body>
+  <h1>⚖️ 단위 변환기</h1>
+
+  <div id="categories"></div>
+
+  <br>
+  <input type="number" id="inputValue" placeholder="값을 입력하세요" oninput="convert()">
+  <select id="fromUnit" onchange="convert()"></select>
+  <select id="toUnit" onchange="convert()"></select>
+
+  <div class="result" id="result">결과: —</div>
+
+  <script>
+    const units = {
+      길이: {
+        km: 1000, m: 1, cm: 0.01, mm: 0.001,
+        inch: 0.0254, ft: 0.3048, mile: 1609.34
+      },
+      무게: {
+        kg: 1, g: 0.001, mg: 0.000001, lb: 0.453592, oz: 0.0283495
+      },
+      온도: null, // 특수 처리
+      넓이: {
+        "m²": 1, "cm²": 0.0001, "km²": 1e6,
+        "평": 3.30579, acre: 4046.86
+      },
+      부피: {
+        L: 1, mL: 0.001, "m³": 1000, "갤런": 3.78541
+      },
+      속도: {
+        "km/h": 1, "m/s": 3.6, mph: 1.60934
+      },
+      데이터: {
+        B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776
+      },
+    };
+
+    let currentCategory = "길이";
+
+    // 카테고리 버튼 생성
+    const catDiv = document.getElementById("categories");
+    Object.keys(units).forEach(cat => {
+      const btn = document.createElement("button");
+      btn.textContent = cat;
+      btn.className = "category-btn" + (cat === currentCategory ? " active" : "");
+      btn.onclick = () => {
+        currentCategory = cat;
+        document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        updateSelects();
+        convert();
+      };
+      catDiv.appendChild(btn);
+    });
+
+    function updateSelects() {
+      const fromSel = document.getElementById("fromUnit");
+      const toSel = document.getElementById("toUnit");
+      fromSel.innerHTML = "";
+      toSel.innerHTML = "";
+
+      const keys = currentCategory === "온도"
+        ? ["℃", "℉", "K"]
+        : Object.keys(units[currentCategory]);
+
+      keys.forEach((u, i) => {
+        fromSel.add(new Option(u, u));
+        toSel.add(new Option(u, u));
+      });
+      toSel.selectedIndex = 1;
+    }
+
+    function convertTemperature(value, from, to) {
+      let celsius;
+      if (from === "℃") celsius = value;
+      else if (from === "℉") celsius = (value - 32) * 5 / 9;
+      else if (from === "K") celsius = value - 273.15;
+
+      if (to === "℃") return celsius;
+      if (to === "℉") return celsius * 9 / 5 + 32;
+      if (to === "K") return celsius + 273.15;
+    }
+
+    function convert() {
+      const value = parseFloat(document.getElementById("inputValue").value);
+      const from = document.getElementById("fromUnit").value;
+      const to = document.getElementById("toUnit").value;
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(value)) { resultDiv.textContent = "결과: —"; return; }
+      if (from === to) { resultDiv.textContent = `결과: ${value} ${to}`; return; }
+
+      let result;
+      if (currentCategory === "온도") {
+        result = convertTemperature(value, from, to);
+      } else {
+        const table = units[currentCategory];
+        result = value * table[from] / table[to];
+      }
+
+      const formatted = parseFloat(result.toPrecision(8)).toLocaleString();
+      resultDiv.textContent = `결과: ${formatted} ${to}`;
+    }
+
+    updateSelects();
+  </script>
+</body>
+</html>
