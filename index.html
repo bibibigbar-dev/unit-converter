@@ -372,6 +372,12 @@
       addClock(timezoneSelect.value);
     });
 
+    function generateId() {
+      return typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : String(Date.now() + Math.random());
+    }
+
     function loadClocks() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -387,7 +393,7 @@
       const location = locations.find(item => item.timezone === clock.timezone);
       if (!location) return null;
       return {
-        id: clock.id || String(Date.now() + Math.random()),
+        id: clock.id || generateId(),
         timezone: location.timezone,
         label: location.label,
         description: location.description,
@@ -400,7 +406,7 @@
     function createClock(timezone) {
       const location = locations.find(item => item.timezone === timezone) || locations[0];
       return {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        id: generateId(),
         timezone: location.timezone,
         label: location.label,
         description: location.description,
