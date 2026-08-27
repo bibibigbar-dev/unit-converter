@@ -1,6 +1,6 @@
 import { categories } from '../data/units'
 
-export default function CategoryTabs({ activeId, onChange }) {
+export default function CategoryTabs({ activeId, onChange, lang }) {
   return (
     <nav className="category-nav">
       {categories.map((cat) => (
@@ -10,7 +10,7 @@ export default function CategoryTabs({ activeId, onChange }) {
           onClick={() => onChange(cat.id)}
           aria-pressed={activeId === cat.id}
         >
-          {cat.label}
+          {cat.label[lang]}
         </button>
       ))}
     </nav>

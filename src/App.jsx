@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import CategoryTabs from './components/CategoryTabs'
 import ConverterPanel from './components/ConverterPanel'
+import { i18n } from './data/units'
 import './App.css'
 
 export default function App() {
@@ -11,42 +12,59 @@ export default function App() {
     }
     return false
   })
+  const [lang, setLang] = useState('ko')
+
+  const t = i18n[lang]
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', lang)
+  }, [lang])
 
   return (
     <div className="app">
       {/* <!-- AdSense Placeholder: Replace this comment with your AdSense script tag --> */}
       <header className="app-header">
         <div className="header-inner">
-          <h1 className="app-title">⚙️ 단위 변환기</h1>
-          <button
-            className="theme-toggle"
-            onClick={() => setDarkMode((d) => !d)}
-            aria-label={darkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
-            title={darkMode ? '라이트 모드' : '다크 모드'}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
+          <h1 className="app-title">{t.appTitle}</h1>
+          <div className="header-controls">
+            <button
+              className="lang-toggle"
+              onClick={() => setLang((l) => (l === 'ko' ? 'en' : 'ko'))}
+              aria-label={lang === 'ko' ? 'Switch to English' : '한국어로 전환'}
+              title={lang === 'ko' ? 'Switch to English' : '한국어로 전환'}
+            >
+              {t.langToggle}
+            </button>
+            <button
+              className="theme-toggle"
+              onClick={() => setDarkMode((d) => !d)}
+              aria-label={darkMode ? t.lightMode : t.darkMode}
+              title={darkMode ? t.lightMode : t.darkMode}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="app-main">
         {/* <!-- AdSense Placeholder Top Banner: <ins class="adsbygoogle" ...></ins> --> */}
 
-        <CategoryTabs activeId={activeCategory} onChange={setActiveCategory} />
+        <CategoryTabs activeId={activeCategory} onChange={setActiveCategory} lang={lang} />
 
         <div className="panel-wrapper">
-          <ConverterPanel key={activeCategory} categoryId={activeCategory} />
+          <ConverterPanel key={activeCategory} categoryId={activeCategory} lang={lang} t={t} />
         </div>
 
         {/* <!-- AdSense Placeholder Bottom Banner: <ins class="adsbygoogle" ...></ins> --> */}
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 단위 변환기 · Made with React + Vite</p>
+        <p>{t.footer}</p>
       </footer>
     </div>
   )
