@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { categories, convert, formatResult } from '../data/units'
 
-export default function ConverterPanel({ categoryId }) {
+export default function ConverterPanel({ categoryId, lang, t }) {
   const category = categories.find((c) => c.id === categoryId)
   const [inputValue, setInputValue] = useState('')
   const [fromId, setFromId] = useState(category?.units[0]?.id ?? '')
@@ -9,7 +9,6 @@ export default function ConverterPanel({ categoryId }) {
   if (!category) return null
 
   const isNumbase = category.type === 'numbase'
-  const isFuel = category.type === 'fuel'
 
   // For numbase: determine valid characters for the from unit
   const numbasePattern = { bin: /[^01]/, oct: /[^0-7]/, dec: /[^0-9]/, hex: /[^0-9a-fA-F]/ }
@@ -33,7 +32,7 @@ export default function ConverterPanel({ categoryId }) {
   return (
     <div className="converter-panel">
       <div className="from-section">
-        <label className="section-label">변환할 단위 선택</label>
+        <label className="section-label">{t.selectUnit}</label>
         <div className="unit-select-row">
           <select
             className="unit-select"
@@ -42,7 +41,7 @@ export default function ConverterPanel({ categoryId }) {
           >
             {category.units.map((u) => (
               <option key={u.id} value={u.id}>
-                {u.label}
+                {u.label[lang]}
               </option>
             ))}
           </select>
@@ -51,7 +50,7 @@ export default function ConverterPanel({ categoryId }) {
           className="value-input"
           type={isNumbase ? 'text' : 'number'}
           inputMode={isNumbase ? 'text' : 'decimal'}
-          placeholder={isNumbase ? `${fromId} 값 입력` : '값을 입력하세요'}
+          placeholder={isNumbase ? `${fromId} value` : t.placeholder}
           value={inputValue}
           onChange={(e) => handleInput(e.target.value)}
           autoComplete="off"
@@ -59,7 +58,7 @@ export default function ConverterPanel({ categoryId }) {
       </div>
 
       <div className="results-section">
-        <label className="section-label">변환 결과</label>
+        <label className="section-label">{t.results}</label>
         <div className="results-grid">
           {category.units.map((u) => {
             if (u.id === fromId && !isNumbase) return null
@@ -71,7 +70,7 @@ export default function ConverterPanel({ categoryId }) {
               : formatResult(result)
             return (
               <div key={u.id} className="result-item">
-                <span className="result-label">{u.label}</span>
+                <span className="result-label">{u.label[lang]}</span>
                 <span className={`result-value${error ? ' error' : ''}`}>{display}</span>
               </div>
             )
